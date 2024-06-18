@@ -6,7 +6,7 @@ import prompt from '../prompts/reflect'
 import { format } from '../queues'
 import discord from '../discord'
 import { TextChannel } from 'discord.js'
-import { askStream } from '../openai'
+import { askStream, askSchema } from '../openai'
 
 const openai = new OpenAI({
   apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
@@ -46,7 +46,13 @@ childrenValues: ${JSON.stringify(childrenValues, null, 2)}
 --- Prompt:
 ${prompt}`)
 
-    const response = await askStream(
+    console.log("Reflect:");
+    console.log(previousPrompt);
+    console.log(answer);
+    console.log(childrenValues);
+    console.log(previousError);
+    
+    const response = await askSchema(
       [
         {
           role: 'system',

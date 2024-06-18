@@ -62,4 +62,38 @@ const askStream = async (
   return response
 }
 
-export { ask, askPrompt, askStream }
+const csrd_schema = {
+  "type": "object",
+  "properties": {
+    "titles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+      },
+      "description": "En lista av titlar."
+    }
+  },
+  "required": ["titles"],
+  "description": "Schema för att definiera strukturen och innehållet för titlar."
+}
+
+const askSchema = async (
+  messages: ChatCompletionMessageParam[],
+  onParagraph?
+) => {
+  const response = await openai.chat.completions.create({
+    messages: messages.filter((m) => m.content),
+    model: 'gpt-4o',
+    temperature: 0.1,
+    stream: false,
+    functions: [{ name: "csrd_report", parameters: csrd_schema }],
+    function_call: { name: "csrd_report" }
+  })
+
+  console.log(response.choices[0].message.function_call.arguments);
+  return false;
+
+  return response
+}
+
+export { ask, askPrompt, askStream, askSchema }
