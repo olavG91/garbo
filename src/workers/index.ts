@@ -1,5 +1,6 @@
 export { default as extractEmissions } from './extractEmissions'
 export { default as downloadPDF } from './downloadPDF'
+export { default as visionPDF } from './visionPDF'
 export { default as pdf2Markdown } from './pdf2Markdown'
 export { default as splitText } from './splitText'
 export { default as indexParagraphs } from './indexParagraphs'

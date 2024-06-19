@@ -187,6 +187,20 @@ export class Discord {
       console.error('The specified channel is not a thread.')
     }
   }
+
+  async sendFile({ threadId }: { threadId: string }, path: string) {
+    try {
+      const thread = (await this.client.channels.fetch(
+        threadId
+      )) as ThreadChannel
+      await thread?.sendTyping()
+      return thread.send({
+        files: [path],
+      })
+    } catch (e) {
+      console.error('Error sending file to thread', e)
+    }
+  }
 }
 
 export default new Discord(config)

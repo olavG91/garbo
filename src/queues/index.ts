@@ -7,6 +7,7 @@ const options: QueueOptions = {
 }
 
 const downloadPDF = new Queue('downloadPDF', options)
+const visionPDF = new Queue('visionPDF', options)
 const pdf2Markdown = new Queue('pdf2Markdown', options)
 const extractEmissions = new Queue('extractEmissions', options)
 const splitText = new Queue('splitText', options)
@@ -23,6 +24,7 @@ const includeFacit = new Queue('includeFacit', options)
 
 export {
   downloadPDF,
+  visionPDF,
   pdf2Markdown,
   splitText,
   indexParagraphs,

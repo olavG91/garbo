@@ -11,6 +11,7 @@ import opensearch from './opensearch'
 import {
   discordReview,
   downloadPDF,
+  visionPDF,
   indexParagraphs,
   pdf2Markdown,
   extractEmissions,
@@ -48,6 +49,7 @@ async function cancelActiveJobs(queue: Queue) {
 
 const queues = [
   downloadPDF,
+  visionPDF,
   pdf2Markdown,
   splitText,
   indexParagraphs,
