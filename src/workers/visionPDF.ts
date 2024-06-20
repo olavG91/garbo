@@ -10,7 +10,6 @@ import { pdf } from 'pdf-to-img';
 import fetch from 'node-fetch';
 import fs from 'fs/promises';
 import { askVision, askSchema } from '../openai';
-import { askOpusSchema, askOpusVision } from '../anthropic';
 import { v4 as uuidv4 } from 'uuid';
 
 // Hantera ES6-modulens __dirname
@@ -81,26 +80,32 @@ const worker = new Worker(
       const imageRequests = imagePaths.map(async (imagePath) => {
         const blob = await fs.readFile(imagePath);
         const base64 = Buffer.from(blob).toString('base64');
-        const result = await askOpusVision(base64);
-        //const answer = JSON.parse(result.choices[0].message.content);
-
-        const answer = JSON.parse(result.content[0].text);
+        const result = await askVision(base64);
+        const answer = result.choices[0].message.content;
 
         await discord.sendFile(job.data, imagePath);
-        //await discord.sendMessage(job.data, `AI svar längd: ${result.choices[0].message.content.length}`);
-        await discord.sendMessage(job.data, `AI svar längd: ${result.content[0].text.length}`);
+        await discord.sendMessage(job.data, `AI svar längd: ${answer.length}`);
         return answer;
       });
 
       const answers = await Promise.all(imageRequests);
 
+      console.log(answers);
+      console.log(JSON.stringify(answers));
+      //Cooldown message
+
       const afterVisionMessages = await discord.sendMessage(job.data, `🧊 Kyler ner AI kluster..`);
       await new Promise((resolve) => setTimeout(resolve, 10000));
       afterVisionMessages.edit(`🤖 Summerar innehållet..`);
 
-      const summary = await askOpusSchema(
+      const summary = await askSchema(
         [
-          { role: 'user', content: `You are an expert in CSRD reporting. Be accurate and follow the instructions carefully. You are formatting a JSON object. Fill the schema with this JSON data where it's applicable, if you don't know what to type, make the value null. Here is the JSON data: ${JSON.stringify(answers)}.` },
+          {
+            role: 'system',
+            content:
+              'You are an expert in CSRD reporting. Be accurate and follow the instructions carefully. You are formatting a JSON object.',
+          },
+          { role: 'user', content: `Fill the schema with this JSON data where it's applicable, if you don't know what to type, make the value null. Here is the JSON data: ${JSON.stringify(answers)}.` },
         ].filter((m) => m.content) as any[]
       );
 
@@ -108,9 +113,7 @@ const worker = new Worker(
         `✅ Summering klar!`
       );
 
-      //const jsonResponse = JSON.parse(summary.choices[0].message.function_call.arguments);
-      console.log(summary);
-      return;
+      const jsonResponse = JSON.parse(summary.choices[0].message.function_call.arguments);
       console.log(jsonResponse);
 
       for (const imagePath of imagePaths) {
